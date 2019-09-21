@@ -7,16 +7,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/internal/transform"
 	"github.com/gobuffalo/packr/v2"
 )
 
 type XKPassword struct {
 	r     *rand.Rand
-	cfg   *Config
+	cfg   *config.GeneratorConfig
 	words [][]byte
 }
 
-func NewXKPassword(cfg *Config) *XKPassword {
+func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
 	return &XKPassword{
 		// Create a new pseudo-random source of entropy.
 		r:   rand.New(rand.NewSource(time.Now().Unix())),
@@ -29,7 +31,12 @@ func (xk *XKPassword) Generate() (string, error) {
 		return "", err
 	}
 
-	parts := xk.parts()
+	pts := xk.parts()
+
+	tpt, err := transform.Do(pts, xk.cfg.CaseTransform)
+	if err != nil {
+		return "", err
+	}
 
 	// TODO: case transformation
 
@@ -39,7 +46,7 @@ func (xk *XKPassword) Generate() (string, error) {
 
 	// TODO: padding characters
 
-	return strings.Join(parts, ""), nil
+	return strings.Join(tpt, ""), nil
 }
 
 func (xk *XKPassword) loadWordList() error {

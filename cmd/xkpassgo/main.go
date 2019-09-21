@@ -4,23 +4,19 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/danmrichards/xkpassgo/internal/config"
 	"github.com/danmrichards/xkpassgo/internal/generator"
 )
 
-const (
-	numWords   = 3
-	minWordLen = 4
-	maxWordLen = 8
-)
-
 func main() {
-	// TODO: Config parsing from flags and/or JSON.
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	xkp := generator.NewXKPassword(&generator.Config{
-		NumWords:   numWords,
-		WordLenMin: minWordLen,
-		WordLenMax: maxWordLen,
-	})
+	// TODO: Validate config.
+
+	xkp := generator.NewXKPassword(cfg)
 
 	pw, err := xkp.Generate()
 	if err != nil {
