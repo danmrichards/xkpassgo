@@ -1,0 +1,11 @@
+[clog]
+repository = "https://github.com/danmrichards/xkpassgo"
+subtitle = "Release Notes"
+
+[sections]
+"Refactors" = ["refactor"]
+"Chores" = ["chore"]
+"Continuous Integration" = ["ci"]
+"Improvements" = ["improvement"]
+"Features" = ["feat", "feature"]
+"Legacy" = ["legacy"]
