@@ -61,7 +61,7 @@ func init() {
 	)
 	pflag.String("padding_character", "RANDOM", "character to pad the password with")
 	pflag.StringSlice(
-		"padding_alphabet",
+		"symbol_alphabet",
 		defaultAlphabet,
 		"comma-separated list of characters to pad the password with",
 	)
