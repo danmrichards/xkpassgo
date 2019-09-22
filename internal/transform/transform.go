@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"strings"
 	"unicode"
+
+	"github.com/danmrichards/xkpassgo/internal/config"
 )
 
 // transformFunc is a func that transforms the elements of parts and returns
@@ -12,10 +14,10 @@ import (
 type transformFunc func(parts []string, r *rand.Rand) []string
 
 // Do returns a slice of parts transformed with style s.
-func Do(parts []string, s Style, r *rand.Rand) ([]string, error) {
-	tf, ok := styleFuncs[s]
+func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
+	tf, ok := styleFuncs[style(cfg.CaseTransform)]
 	if !ok {
-		return nil, fmt.Errorf("%q is not a valid transformation", string(s))
+		return nil, fmt.Errorf("%q is not a valid transformation", string(cfg.CaseTransform))
 	}
 
 	return tf(parts, r), nil

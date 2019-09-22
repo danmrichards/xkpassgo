@@ -1,0 +1,41 @@
+run:
+  deadline: 5m
+  skip-files:
+    - "\\.xo\\.go$"
+  skip-dirs:
+    - apps/test[0-9]+$
+
+linters-settings:
+  govet:
+    check-shadowing: false
+  gocyclo:
+    min-complexity: 20
+  maligned:
+    suggest-new: true
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 4
+
+linters:
+  enable-all: true
+  disable:
+    - dupl
+    - gas
+    - errcheck
+    - gofmt
+    - gosimple
+    - interfacer
+    - megacheck
+    - maligned
+    - structcheck
+    - staticcheck
+    - unconvert
+    - unparam
+    - varcheck
+    - lll
+    - prealloc
+    - gochecknoglobals
+    - gochecknoinits
+    - scopelint

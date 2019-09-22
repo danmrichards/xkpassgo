@@ -1,32 +1,32 @@
 package transform
 
-// Style represents a style of word transformation.
-type Style string
+// style represents a style of word transformation.
+type style string
 
 const (
 	// None is a no-op transformation and does nothing.
-	None Style = "NONE"
+	None style = "NONE"
 
 	// Alternate is an "alternating WORD case" transformation.
-	Alternate Style = "ALTERNATE"
+	Alternate style = "ALTERNATE"
 
 	// Capitalise is a "Capitalise First Letter" transformation.
-	Capitalise Style = "CAPITALISE"
+	Capitalise style = "CAPITALISE"
 
 	// Invert is a "cAPITALISE eVERY lETTER eXCEPT tHE fIRST" transformation.
-	Invert Style = "INVERT"
+	Invert style = "INVERT"
 
 	// Lower is a "lower case" transformation.
-	Lower Style = "LOWER"
+	Lower style = "LOWER"
 
 	// Upper is an "UPPER CASE" transformation.
-	Upper Style = "UPPER"
+	Upper style = "UPPER"
 
 	// Random is a "EVERY word randomly CAPITALISED or NOT" transformation.
-	Random Style = "RANDOM"
+	Random style = "RANDOM"
 )
 
-var styleFuncs = map[Style]transformFunc{
+var styleFuncs = map[style]transformFunc{
 	None:       noop,
 	Alternate:  alternate,
 	Capitalise: capitalise,

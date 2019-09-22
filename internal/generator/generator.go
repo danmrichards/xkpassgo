@@ -14,12 +14,27 @@ import (
 	"github.com/gobuffalo/packr/v2"
 )
 
+// modFunc is a function that applies a modification the password parts.
+//
+// The func can rely on the given config and random source.
+type modFunc func(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error)
+
 // XKPassword is a generator of XKCD-style memorable passwords.
 type XKPassword struct {
 	r     *rand.Rand
 	cfg   *config.GeneratorConfig
 	words [][]byte
 }
+
+var (
+	// mods is the set of password modifications.
+	mods = []modFunc{
+		transform.Do,
+		separator.Do,
+		padding.Digits,
+		padding.Symbols,
+	}
+)
 
 // NewXKPassword returns a new configured XKCD password generator.
 func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
@@ -38,24 +53,12 @@ func (xk *XKPassword) Generate() (pw string, err error) {
 
 	pts := xk.parts()
 
-	// TODO: Can all the modifications be covered with a common func type?
-
-	pts, err = transform.Do(pts, transform.Style(xk.cfg.CaseTransform), xk.r)
-	if err != nil {
-		return "", err
-	}
-
-	pts = separator.Do(
-		pts, xk.cfg.SeparatorAlphabet, xk.cfg.SeparatorCharacter, xk.r,
-	)
-
-	pts = padding.Digits(
-		pts, xk.cfg.PaddingDigitsBefore, xk.cfg.PaddingDigitsAfter, xk.r,
-	)
-
-	pts, err = padding.Symbols(pts, xk.cfg, xk.r)
-	if err != nil {
-		return "", err
+	// Apply each modification to the password parts.
+	for _, m := range mods {
+		pts, err = m(pts, xk.cfg, xk.r)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return strings.Join(pts, ""), nil

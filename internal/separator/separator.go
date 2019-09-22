@@ -1,6 +1,10 @@
 package separator
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"github.com/danmrichards/xkpassgo/internal/config"
+)
 
 // Random indicates that a random character from the separator alphabet should
 // be used.
@@ -13,7 +17,9 @@ const Random = "RANDOM"
 // random character from the given alphabet.
 //
 // Separators are not added to the start or end of the slice.
-func Do(parts, alpha []string, char string, r *rand.Rand) []string {
+func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
+	char := cfg.SeparatorCharacter
+	alpha := cfg.SeparatorAlphabet
 	if char == Random {
 		char = alpha[r.Intn(len(alpha))]
 	}
@@ -27,5 +33,5 @@ func Do(parts, alpha []string, char string, r *rand.Rand) []string {
 		}
 	}
 
-	return sp
+	return sp, nil
 }
