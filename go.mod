@@ -3,7 +3,6 @@ module github.com/danmrichards/xkpassgo
 go 1.13
 
 require (
-	github.com/go-delve/delve v1.3.1
 	github.com/gobuffalo/envy v1.7.1 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/packr/v2 v2.6.0

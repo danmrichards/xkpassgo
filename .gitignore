@@ -79,5 +79,3 @@ Temporary Items
 .apdisk
 
 bin
-cmd/xkpassgo/packrd
-internal/generator/generator-packr.go
