@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
 // Random indicates that a random character from the symbol alphabet should

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
 // transformFunc is a func that transforms the elements of parts and returns

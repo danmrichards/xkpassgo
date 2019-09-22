@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -10,8 +11,11 @@ import (
 )
 
 var (
-	cfgFile         string
-	defaultAlphabet = []string{
+	cfgFile string
+
+	// DefaultAlphabet is the default character set used for the separator
+	// and padding modifications.
+	DefaultAlphabet = []string{
 		"!", "@", "$", "%", "^", "&", "*", "-", "_",
 		"+", "=", ":", "|", "~", "?", "/", ".", ";",
 	}
@@ -51,7 +55,7 @@ func init() {
 	pflag.String("separator_character", "RANDOM", "character to separate password parts")
 	pflag.StringSlice(
 		"separator_alphabet",
-		defaultAlphabet,
+		DefaultAlphabet,
 		"comma-separated list of characters to separate password parts",
 	)
 	pflag.Int("padding_digits_before", 2, "number of digits to pad before the password")
@@ -62,7 +66,7 @@ func init() {
 	pflag.String("padding_character", "RANDOM", "character to pad the password with")
 	pflag.StringSlice(
 		"symbol_alphabet",
-		defaultAlphabet,
+		DefaultAlphabet,
 		"comma-separated list of characters to pad the password with",
 	)
 	pflag.Int("pad_to_length", 8, "length to pad the password to, will be ignored if less than the generated password length")
@@ -113,4 +117,41 @@ func Load() (*GeneratorConfig, error) {
 	}
 
 	return &cfg, nil
+}
+
+// Validate returns an error if the current configuration is not valid.
+func (gc *GeneratorConfig) Validate() error {
+	if gc.NumWords < 0 {
+		return errors.New("num_words must be a positive integer")
+	}
+
+	if gc.WordLenMin < 0 {
+		return errors.New("word_len_min must be a positive integer")
+	}
+	if gc.WordLenMax < 0 {
+		return errors.New("word_len_max must be a positive integer")
+	}
+	if gc.WordLenMax < gc.WordLenMin {
+		return errors.New("word_len_max cannot be less than word_len_min")
+	}
+
+	if gc.PaddingDigitsBefore < 0 {
+		return errors.New("padding_digits_before must be a positive integer")
+	}
+	if gc.PaddingDigitsAfter < 0 {
+		return errors.New("padding_digits_after must be a positive integer")
+	}
+
+	if gc.PadToLength < 0 {
+		return errors.New("pad_to_length must be a positive integer")
+	}
+
+	if gc.PaddingCharactersBefore < 0 {
+		return errors.New("padding_characters_before must be a positive integer")
+	}
+	if gc.PaddingCharactersAfter < 0 {
+		return errors.New("padding_characters_after must be a positive integer")
+	}
+
+	return nil
 }

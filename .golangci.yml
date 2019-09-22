@@ -39,3 +39,4 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - scopelint
+    - funlen

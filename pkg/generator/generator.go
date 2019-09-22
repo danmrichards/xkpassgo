@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/danmrichards/xkpassgo/internal/config"
-	"github.com/danmrichards/xkpassgo/internal/padding"
-	"github.com/danmrichards/xkpassgo/internal/separator"
-	"github.com/danmrichards/xkpassgo/internal/transform"
+	"github.com/danmrichards/xkpassgo/pkg/config"
+	"github.com/danmrichards/xkpassgo/pkg/padding"
+	"github.com/danmrichards/xkpassgo/pkg/separator"
+	"github.com/danmrichards/xkpassgo/pkg/transform"
 	"github.com/gobuffalo/packr/v2"
 )
 

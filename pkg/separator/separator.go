@@ -1,9 +1,10 @@
 package separator
 
 import (
+	"errors"
 	"math/rand"
 
-	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
 // Random indicates that a random character from the separator alphabet should
@@ -20,7 +21,12 @@ const Random = "RANDOM"
 func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
 	char := cfg.SeparatorCharacter
 	alpha := cfg.SeparatorAlphabet
+
 	if char == Random {
+		if len(alpha) == 0 {
+			return nil, errors.New("configured alphabet cannot be empty")
+		}
+
 		char = alpha[r.Intn(len(alpha))]
 	}
 
