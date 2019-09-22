@@ -13,6 +13,7 @@ import (
 
 var cfgFile string
 
+// GeneratorConfig represents the configuration for the password generator.
 type GeneratorConfig struct {
 	NumWords      int             `mapstructure:"num_words"`
 	WordLenMin    int             `mapstructure:"word_length_min"`
@@ -22,6 +23,10 @@ type GeneratorConfig struct {
 
 func init() {
 	pflag.StringVar(&cfgFile, "config", mustDefaultConfigFile(), "path to config file")
+
+	// Define flags with names matching the mapstructure tags on the config
+	// struct. This allows Viper to override config file values with those
+	// from the flags.
 	pflag.Int("num_words", 3, "number of words")
 	pflag.Int("word_length_min", 4, "minimum word length")
 	pflag.Int("word_length_max", 8, "maximum word length")
@@ -35,6 +40,11 @@ func init() {
 	viper.BindPFlags(pflag.CommandLine)
 }
 
+// mustDefaultConfigFile returns the path to the default config file.
+//
+// The default config file is expected to exist in the users home directory.
+//
+// If an error is encountered finding the home directory, the method will panic.
 func mustDefaultConfigFile() string {
 	home, err := homedir.Dir()
 	if err != nil {
@@ -43,6 +53,10 @@ func mustDefaultConfigFile() string {
 	return home + "/.xkpassgo.json"
 }
 
+// Load returns a fully loaded configuration for the password generator.
+//
+// The config will be taken from the defined config file (default or from flag)
+// and can be overridden with flag values.
 func Load() (*GeneratorConfig, error) {
 	viper.SetConfigType("json")
 

@@ -12,12 +12,14 @@ import (
 	"github.com/gobuffalo/packr/v2"
 )
 
+// XKPassword is a generator of XKCD-style memorable passwords.
 type XKPassword struct {
 	r     *rand.Rand
 	cfg   *config.GeneratorConfig
 	words [][]byte
 }
 
+// NewXKPassword returns a new configured XKCD password generator.
 func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
 	return &XKPassword{
 		// Create a new pseudo-random source of entropy.
@@ -26,6 +28,7 @@ func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
 	}
 }
 
+// Generate returns a new generated password.
 func (xk *XKPassword) Generate() (string, error) {
 	if err := xk.loadWordList(); err != nil {
 		return "", err
@@ -49,8 +52,10 @@ func (xk *XKPassword) Generate() (string, error) {
 	return strings.Join(tpt, ""), nil
 }
 
+// loadWordList loads the list of words for generating passwords.
+//
+// The word list is loaded from a packed asset file.
 func (xk *XKPassword) loadWordList() error {
-	// Load the word file from packed asset.
 	box := packr.New("assets", "../../assets")
 	wf, err := box.Find("words")
 	if err != nil {
@@ -62,6 +67,10 @@ func (xk *XKPassword) loadWordList() error {
 	return nil
 }
 
+// parts returns a slice of words to use in the generated password.
+//
+// The number of words in the slice, and the length of those words, is based on
+// the configuration of the password generator.
 func (xk *XKPassword) parts() (p []string) {
 	p = make([]string, 0, xk.cfg.NumWords)
 	for {
