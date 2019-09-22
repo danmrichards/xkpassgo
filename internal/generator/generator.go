@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/internal/padding"
 	"github.com/danmrichards/xkpassgo/internal/separator"
 	"github.com/danmrichards/xkpassgo/internal/transform"
 	"github.com/gobuffalo/packr/v2"
@@ -30,27 +31,34 @@ func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
 }
 
 // Generate returns a new generated password.
-func (xk *XKPassword) Generate() (string, error) {
-	if err := xk.loadWordList(); err != nil {
+func (xk *XKPassword) Generate() (pw string, err error) {
+	if err = xk.loadWordList(); err != nil {
 		return "", err
 	}
 
 	pts := xk.parts()
 
-	tpt, err := transform.Do(pts, xk.cfg.CaseTransform, xk.r)
+	// TODO: Can all the modifications be covered with a common func type?
+
+	pts, err = transform.Do(pts, transform.Style(xk.cfg.CaseTransform), xk.r)
 	if err != nil {
 		return "", err
 	}
 
-	spt := separator.Do(
-		tpt, xk.cfg.SeparatorAlphabet, xk.cfg.SeparatorCharacter, xk.r,
+	pts = separator.Do(
+		pts, xk.cfg.SeparatorAlphabet, xk.cfg.SeparatorCharacter, xk.r,
 	)
 
-	// TODO: padding digits
+	pts = padding.Digits(
+		pts, xk.cfg.PaddingDigitsBefore, xk.cfg.PaddingDigitsAfter, xk.r,
+	)
 
-	// TODO: padding characters
+	pts, err = padding.Symbols(pts, xk.cfg, xk.r)
+	if err != nil {
+		return "", err
+	}
 
-	return strings.Join(spt, ""), nil
+	return strings.Join(pts, ""), nil
 }
 
 // loadWordList loads the list of words for generating passwords.

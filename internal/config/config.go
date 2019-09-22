@@ -3,25 +3,36 @@ package config
 import (
 	"fmt"
 	"os"
-	"strings"
 
-	"github.com/danmrichards/xkpassgo/internal/separator"
-	"github.com/danmrichards/xkpassgo/internal/transform"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile         string
+	defaultAlphabet = []string{
+		"!", "@", "$", "%", "^", "&", "*", "-", "_",
+		"+", "=", ":", "|", "~", "?", "/", ".", ";",
+	}
+)
 
 // GeneratorConfig represents the configuration for the password generator.
 type GeneratorConfig struct {
-	NumWords           int             `mapstructure:"num_words"`
-	WordLenMin         int             `mapstructure:"word_length_min"`
-	WordLenMax         int             `mapstructure:"word_length_max"`
-	CaseTransform      transform.Style `mapstructure:"case_transform"`
-	SeparatorCharacter string          `mapstructure:"separator_character"`
-	SeparatorAlphabet  []string        `mapstructure:"separator_alphabet"`
+	NumWords                int      `mapstructure:"num_words"`
+	WordLenMin              int      `mapstructure:"word_length_min"`
+	WordLenMax              int      `mapstructure:"word_length_max"`
+	CaseTransform           string   `mapstructure:"case_transform"`
+	SeparatorCharacter      string   `mapstructure:"separator_character"`
+	SeparatorAlphabet       []string `mapstructure:"separator_alphabet"`
+	PaddingDigitsBefore     int      `mapstructure:"padding_digits_before"`
+	PaddingDigitsAfter      int      `mapstructure:"padding_digits_after"`
+	PaddingType             string   `mapstructure:"padding_type"`
+	PaddingCharacter        string   `mapstructure:"padding_character"`
+	SymbolAlphabet          []string `mapstructure:"symbol_alphabet"`
+	PadToLength             int      `mapstructure:"pad_to_length"`
+	PaddingCharactersBefore int      `mapstructure:"padding_characters_before"`
+	PaddingCharactersAfter  int      `mapstructure:"padding_characters_after"`
 }
 
 func init() {
@@ -33,13 +44,30 @@ func init() {
 	pflag.Int("num_words", 3, "number of words")
 	pflag.Int("word_length_min", 4, "minimum word length")
 	pflag.Int("word_length_max", 8, "maximum word length")
-	pflag.String("separator_character", separator.Random, "character to separate password parts")
-	pflag.StringSlice("separator_alphabet", separator.DefaultAlphabet, "comma-separated list of characters to separate password parts")
 	pflag.String(
-		"case_transform",
-		"",
-		"case transformation, allowed values: "+strings.Join(transform.Styles(), ", "),
+		"case_transform", "ALTERNATE",
+		"case transformation, allowed values: LOWER, UPPER, RANDOM, NONE, ALTERNATE, CAPITALISE, INVERT",
 	)
+	pflag.String("separator_character", "RANDOM", "character to separate password parts")
+	pflag.StringSlice(
+		"separator_alphabet",
+		defaultAlphabet,
+		"comma-separated list of characters to separate password parts",
+	)
+	pflag.Int("padding_digits_before", 2, "number of digits to pad before the password")
+	pflag.Int("padding_digits_after", 2, "number of digits to pad before the password")
+	pflag.String(
+		"padding_type", "FIXED", "padding type, allowed values: FIXED, ADAPTIVE",
+	)
+	pflag.String("padding_character", "RANDOM", "character to pad the password with")
+	pflag.StringSlice(
+		"padding_alphabet",
+		defaultAlphabet,
+		"comma-separated list of characters to pad the password with",
+	)
+	pflag.Int("pad_to_length", 8, "length to pad the password to, will be ignored if less than the generated password length")
+	pflag.Int("padding_characters_before", 2, "number of characters to pad before the password")
+	pflag.Int("padding_characters_after", 2, "number of characters to pad before the password")
 	pflag.Parse()
 
 	viper.BindPFlags(pflag.CommandLine)

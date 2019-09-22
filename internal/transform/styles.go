@@ -35,13 +35,3 @@ var styleFuncs = map[Style]transformFunc{
 	Upper:      upper,
 	Random:     random,
 }
-
-// Styles returns a list of available transformation styles.
-func Styles() []string {
-	s := make([]string, 0, len(styleFuncs))
-	for style := range styleFuncs {
-		s = append(s, string(style))
-	}
-
-	return s
-}
