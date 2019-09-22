@@ -4,31 +4,30 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-	"time"
 	"unicode"
 )
 
 // transformFunc is a func that transforms the elements of parts and returns
 // the transformed elements in a slice.
-type transformFunc func(parts []string) []string
+type transformFunc func(parts []string, r *rand.Rand) []string
 
 // Do returns a slice of parts transformed with style s.
-func Do(parts []string, s Style) ([]string, error) {
+func Do(parts []string, s Style, r *rand.Rand) ([]string, error) {
 	tf, ok := styleFuncs[s]
 	if !ok {
 		return nil, fmt.Errorf("%q is not a valid transformation", string(s))
 	}
 
-	return tf(parts), nil
+	return tf(parts, r), nil
 }
 
 // noop just returns the parts.
-func noop(parts []string) []string {
+func noop(parts []string, _ *rand.Rand) []string {
 	return parts
 }
 
 // alternate returns "alternating WORD case" parts.
-func alternate(parts []string) []string {
+func alternate(parts []string, _ *rand.Rand) []string {
 	for i, p := range parts {
 		if i%2 == 0 {
 			parts[i] = strings.ToLower(p)
@@ -41,7 +40,7 @@ func alternate(parts []string) []string {
 }
 
 // capitalise returns "Capitalise First Letter" parts.
-func capitalise(parts []string) []string {
+func capitalise(parts []string, _ *rand.Rand) []string {
 	for i := range parts {
 		parts[i] = strings.Title(parts[i])
 	}
@@ -50,7 +49,7 @@ func capitalise(parts []string) []string {
 }
 
 // invert returns "cAPITALISE eVERY lETTER eXCEPT tHE fIRST" parts.
-func invert(parts []string) []string {
+func invert(parts []string, _ *rand.Rand) []string {
 	for i := range parts {
 		// Strings are immutable so we need to cast to byte slice to be able
 		// to modify specific characters.
@@ -69,7 +68,7 @@ func invert(parts []string) []string {
 }
 
 // lower returns "lower case" parts.
-func lower(parts []string) []string {
+func lower(parts []string, _ *rand.Rand) []string {
 	for i, p := range parts {
 		parts[i] = strings.ToLower(p)
 	}
@@ -78,7 +77,7 @@ func lower(parts []string) []string {
 }
 
 // upper returns "UPPER CASE" parts.
-func upper(parts []string) []string {
+func upper(parts []string, _ *rand.Rand) []string {
 	for i, p := range parts {
 		parts[i] = strings.ToUpper(p)
 	}
@@ -87,8 +86,7 @@ func upper(parts []string) []string {
 }
 
 // random returns "EVERY word randomly CAPITALISED or NOT" parts.
-func random(parts []string) []string {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+func random(parts []string, r *rand.Rand) []string {
 	for i, p := range parts {
 		if r.Int()%2 == 0 {
 			parts[i] = strings.ToUpper(p)

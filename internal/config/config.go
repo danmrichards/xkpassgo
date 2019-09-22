@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/danmrichards/xkpassgo/internal/separator"
 	"github.com/danmrichards/xkpassgo/internal/transform"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
@@ -15,10 +16,12 @@ var cfgFile string
 
 // GeneratorConfig represents the configuration for the password generator.
 type GeneratorConfig struct {
-	NumWords      int             `mapstructure:"num_words"`
-	WordLenMin    int             `mapstructure:"word_length_min"`
-	WordLenMax    int             `mapstructure:"word_length_max"`
-	CaseTransform transform.Style `mapstructure:"case_transform"`
+	NumWords           int             `mapstructure:"num_words"`
+	WordLenMin         int             `mapstructure:"word_length_min"`
+	WordLenMax         int             `mapstructure:"word_length_max"`
+	CaseTransform      transform.Style `mapstructure:"case_transform"`
+	SeparatorCharacter string          `mapstructure:"separator_character"`
+	SeparatorAlphabet  []string        `mapstructure:"separator_alphabet"`
 }
 
 func init() {
@@ -30,6 +33,8 @@ func init() {
 	pflag.Int("num_words", 3, "number of words")
 	pflag.Int("word_length_min", 4, "minimum word length")
 	pflag.Int("word_length_max", 8, "maximum word length")
+	pflag.String("separator_character", separator.Random, "character to separate password parts")
+	pflag.StringSlice("separator_alphabet", separator.DefaultAlphabet, "comma-separated list of characters to separate password parts")
 	pflag.String(
 		"case_transform",
 		"",

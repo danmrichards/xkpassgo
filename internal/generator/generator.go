@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/danmrichards/xkpassgo/internal/config"
+	"github.com/danmrichards/xkpassgo/internal/separator"
 	"github.com/danmrichards/xkpassgo/internal/transform"
 	"github.com/gobuffalo/packr/v2"
 )
@@ -36,20 +37,20 @@ func (xk *XKPassword) Generate() (string, error) {
 
 	pts := xk.parts()
 
-	tpt, err := transform.Do(pts, xk.cfg.CaseTransform)
+	tpt, err := transform.Do(pts, xk.cfg.CaseTransform, xk.r)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: case transformation
-
-	// TODO: seperators
+	spt := separator.Do(
+		tpt, xk.cfg.SeparatorAlphabet, xk.cfg.SeparatorCharacter, xk.r,
+	)
 
 	// TODO: padding digits
 
 	// TODO: padding characters
 
-	return strings.Join(tpt, ""), nil
+	return strings.Join(spt, ""), nil
 }
 
 // loadWordList loads the list of words for generating passwords.
