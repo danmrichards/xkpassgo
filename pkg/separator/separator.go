@@ -16,8 +16,6 @@ const Random = "RANDOM"
 //
 // The separatator character is either literally char or if set to "RANDOM" a
 // random character from the given alphabet.
-//
-// Separators are not added to the start or end of the slice.
 func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
 	char := cfg.SeparatorCharacter
 	alpha := cfg.SeparatorAlphabet
@@ -31,13 +29,36 @@ func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, er
 	}
 
 	sp := make([]string, 0, len(parts)+len(parts)-1)
+
+	if endPad(cfg) {
+		sp = append(sp, char)
+	}
+
 	for i, p := range parts {
 		sp = append(sp, p)
 
-		if i < len(parts)-1 {
+		if i < len(parts)-1 || endPad(cfg) {
 			sp = append(sp, char)
 		}
 	}
 
 	return sp, nil
+}
+
+func endPad(cfg *config.GeneratorConfig) bool {
+	padChars := cfg.PaddingCharactersBefore > 0 || cfg.PaddingCharactersAfter > 0
+
+	if cfg.PaddingDigitsBefore == 0 && cfg.PaddingDigitsAfter == 0 && padChars {
+		return false
+	}
+
+	if cfg.PaddingDigitsBefore > 0 || cfg.PaddingDigitsAfter > 0 {
+		return true
+	}
+
+	if padChars {
+		return true
+	}
+
+	return false
 }

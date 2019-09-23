@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
@@ -12,8 +13,8 @@ import (
 // be used.
 const Random = "RANDOM"
 
-// Symbols returns parts with the configured padding applied.
-func Symbols(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
+// symbols returns pw with the configured padding applied.
+func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, error) {
 	char := cfg.PaddingCharacter
 	alpha := cfg.SymbolAlphabet
 	if char == Random {
@@ -21,50 +22,54 @@ func Symbols(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]strin
 	}
 
 	switch Style(cfg.PaddingType) {
+	case None:
+		return pw, nil
 	case Fixed:
 		return fixed(
-			parts, char, cfg.PaddingCharactersBefore, cfg.PaddingCharactersAfter,
+			pw, char, cfg.PaddingCharactersBefore, cfg.PaddingCharactersAfter,
 		), nil
 	case Adaptive:
-		return adaptive(parts, char, cfg.PadToLength), nil
+		return adaptive(pw, char, cfg.PadToLength), nil
 	default:
-		return nil, fmt.Errorf(
+		return "", fmt.Errorf(
 			"%q is not a valid padding style", cfg.PaddingType,
 		)
 	}
 }
 
-func fixed(parts []string, char string, before, after int) []string {
-	p := make([]string, 0, len(parts)+before+after)
+func fixed(pw string, char string, before, after int) string {
+	var ppw strings.Builder
 
 	for i := 0; i < before; i++ {
-		p = append(p, char)
+		ppw.WriteString(char)
 	}
 
-	p = append(p, parts...)
+	ppw.WriteString(pw)
 
 	for j := 0; j < after; j++ {
-		p = append(p, char)
+		ppw.WriteString(char)
 	}
 
-	return p
+	return ppw.String()
 }
 
-func adaptive(parts []string, char string, padLen int) []string {
-	pwLen := len(strings.Join(parts, ""))
+func adaptive(pw string, char string, padLen int) string {
+	pwLen := utf8.RuneCountInString(pw)
 
 	// Don't attempt to pad if the desired length is less than final length
 	// of the password.
 	if padLen < pwLen {
-		return parts
+		return pw
 	}
 
 	diff := padLen - pwLen
-	var b strings.Builder
+
+	var ppw strings.Builder
+	ppw.WriteString(pw)
+
 	for i := 0; i < diff; i++ {
-		b.WriteString(char)
+		ppw.WriteString(char)
 	}
 
-	parts = append(parts, b.String())
-	return parts
+	return ppw.String()
 }

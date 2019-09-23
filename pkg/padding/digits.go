@@ -3,26 +3,26 @@ package padding
 import (
 	"math/rand"
 	"strconv"
+	"strings"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-// Digits returns parts with the given amount of random digits padded at the
-// start and end of the slice.
-func Digits(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
+// digits returns pw with the given amount of random digits padded at the
+// start and end of the string.
+func digits(pw string, cfg *config.GeneratorConfig, r *rand.Rand) string {
 	before, after := cfg.PaddingDigitsBefore, cfg.PaddingDigitsAfter
 
-	p := make([]string, 0, len(parts)+before+after)
-
+	var ppw strings.Builder
 	for i := 0; i < before; i++ {
-		p = append(p, strconv.Itoa(r.Intn(10)))
+		ppw.WriteString(strconv.Itoa(r.Intn(10)))
 	}
 
-	p = append(p, parts...)
+	ppw.WriteString(pw)
 
 	for j := 0; j < after; j++ {
-		p = append(p, strconv.Itoa(r.Intn(10)))
+		ppw.WriteString(strconv.Itoa(r.Intn(10)))
 	}
 
-	return p, nil
+	return ppw.String()
 }

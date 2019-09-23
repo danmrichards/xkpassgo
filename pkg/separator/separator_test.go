@@ -29,6 +29,17 @@ func TestDo(t *testing.T) {
 			},
 		},
 		{
+			name:  "specific char pad end",
+			parts: testParts,
+			cfg: &config.GeneratorConfig{
+				SeparatorCharacter:  "@",
+				PaddingDigitsBefore: 1,
+			},
+			wantParts: []string{
+				"@", "correct", "@", "horse", "@", "battery", "@", "staple", "@",
+			},
+		},
+		{
 			name:  "random char single alpha",
 			parts: testParts,
 			cfg: &config.GeneratorConfig{
@@ -40,6 +51,18 @@ func TestDo(t *testing.T) {
 			},
 		},
 		{
+			name:  "random char single alpha pad end",
+			parts: testParts,
+			cfg: &config.GeneratorConfig{
+				SeparatorCharacter:  Random,
+				SeparatorAlphabet:   []string{"@"},
+				PaddingDigitsBefore: 1,
+			},
+			wantParts: []string{
+				"@", "correct", "@", "horse", "@", "battery", "@", "staple", "@",
+			},
+		},
+		{
 			name:  "random char default alpha",
 			parts: testParts,
 			cfg: &config.GeneratorConfig{
@@ -47,7 +70,19 @@ func TestDo(t *testing.T) {
 				SeparatorAlphabet:  config.DefaultAlphabet,
 			},
 			wantParts: []string{
-				"correct", "/", "horse", "/", "battery", "/", "staple",
+				"correct", ":", "horse", ":", "battery", ":", "staple",
+			},
+		},
+		{
+			name:  "random char default alpha pad end",
+			parts: testParts,
+			cfg: &config.GeneratorConfig{
+				SeparatorCharacter:  Random,
+				SeparatorAlphabet:   config.DefaultAlphabet,
+				PaddingDigitsBefore: 1,
+			},
+			wantParts: []string{
+				":", "correct", ":", "horse", ":", "battery", ":", "staple", ":",
 			},
 		},
 		{
@@ -58,7 +93,19 @@ func TestDo(t *testing.T) {
 				SeparatorAlphabet:  []string{"!", "@", "£", "$"},
 			},
 			wantParts: []string{
-				"correct", "$", "horse", "$", "battery", "$", "staple",
+				"correct", "@", "horse", "@", "battery", "@", "staple",
+			},
+		},
+		{
+			name:  "random char specific alpha pad end",
+			parts: testParts,
+			cfg: &config.GeneratorConfig{
+				SeparatorCharacter:  Random,
+				SeparatorAlphabet:   []string{"!", "@", "£", "$"},
+				PaddingDigitsBefore: 1,
+			},
+			wantParts: []string{
+				"£", "correct", "£", "horse", "£", "battery", "£", "staple", "£",
 			},
 		},
 	}

@@ -12,6 +12,9 @@ const (
 	// Adaptive is a padding style that pads a password to a given length. The
 	// padding character can be specified or randomly chosen from an alphabet.
 	Adaptive Style = "ADAPTIVE"
+
+	// None is a padding style that does no padding.
+	None Style = "NONE"
 )
 
 var styleFuncs = map[Style]struct{}{

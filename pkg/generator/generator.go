@@ -14,27 +14,12 @@ import (
 	"github.com/gobuffalo/packr/v2"
 )
 
-// modFunc is a function that applies a modification the password parts.
-//
-// The func can rely on the given config and random source.
-type modFunc func(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error)
-
 // XKPassword is a generator of XKCD-style memorable passwords.
 type XKPassword struct {
 	r     *rand.Rand
 	cfg   *config.GeneratorConfig
 	words [][]byte
 }
-
-var (
-	// mods is the set of password modifications.
-	mods = []modFunc{
-		transform.Do,
-		separator.Do,
-		padding.Digits,
-		padding.Symbols,
-	}
-)
 
 // NewXKPassword returns a new configured XKCD password generator.
 func NewXKPassword(cfg *config.GeneratorConfig) *XKPassword {
@@ -53,15 +38,24 @@ func (xk *XKPassword) Generate() (pw string, err error) {
 
 	pts := xk.parts()
 
-	// Apply each modification to the password parts.
-	for _, m := range mods {
-		pts, err = m(pts, xk.cfg, xk.r)
-		if err != nil {
-			return "", err
-		}
+	pts, err = transform.Do(pts, xk.cfg, xk.r)
+	if err != nil {
+		return "", err
 	}
 
-	return strings.Join(pts, ""), nil
+	pts, err = separator.Do(pts, xk.cfg, xk.r)
+	if err != nil {
+		return "", err
+	}
+
+	pw = strings.TrimSpace(strings.Join(pts, ""))
+
+	pw, err = padding.Do(pw, xk.cfg, xk.r)
+	if err != nil {
+		return "", err
+	}
+
+	return pw, nil
 }
 
 // loadWordList loads the list of words for generating passwords.
