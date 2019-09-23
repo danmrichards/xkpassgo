@@ -8,10 +8,7 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-var (
-	testParts        = []string{"correct", "horse", "battery", "staple"}
-	testExtremeParts = []string{"cOrReCt", "hOrSe", "bAtTeRy", "sTaPle"}
-)
+var testParts = []string{"correct", "horse", "battery", "staple"}
 
 func TestDo(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
@@ -32,16 +29,6 @@ func TestDo(t *testing.T) {
 			},
 		},
 		{
-			name:  "specific char extreme",
-			parts: testExtremeParts,
-			cfg: &config.GeneratorConfig{
-				SeparatorCharacter: "@",
-			},
-			wantParts: []string{
-				"cOrReCt", "@", "hOrSe", "@", "bAtTeRy", "@", "sTaPle",
-			},
-		},
-		{
 			name:  "random char single alpha",
 			parts: testParts,
 			cfg: &config.GeneratorConfig{
@@ -53,17 +40,6 @@ func TestDo(t *testing.T) {
 			},
 		},
 		{
-			name:  "random char single alpha extreme",
-			parts: testExtremeParts,
-			cfg: &config.GeneratorConfig{
-				SeparatorCharacter: Random,
-				SeparatorAlphabet:  []string{"@"},
-			},
-			wantParts: []string{
-				"cOrReCt", "@", "hOrSe", "@", "bAtTeRy", "@", "sTaPle",
-			},
-		},
-		{
 			name:  "random char default alpha",
 			parts: testParts,
 			cfg: &config.GeneratorConfig{
@@ -71,18 +47,18 @@ func TestDo(t *testing.T) {
 				SeparatorAlphabet:  config.DefaultAlphabet,
 			},
 			wantParts: []string{
-				"correct", ":", "horse", ":", "battery", ":", "staple",
+				"correct", "/", "horse", "/", "battery", "/", "staple",
 			},
 		},
 		{
-			name:  "random char default alpha extreme",
-			parts: testExtremeParts,
+			name:  "random char specific alpha",
+			parts: testParts,
 			cfg: &config.GeneratorConfig{
 				SeparatorCharacter: Random,
-				SeparatorAlphabet:  config.DefaultAlphabet,
+				SeparatorAlphabet:  []string{"!", "@", "£", "$"},
 			},
 			wantParts: []string{
-				"cOrReCt", ":", "hOrSe", ":", "bAtTeRy", ":", "sTaPle",
+				"correct", "$", "horse", "$", "battery", "$", "staple",
 			},
 		},
 	}

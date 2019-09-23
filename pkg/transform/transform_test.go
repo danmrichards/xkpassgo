@@ -137,7 +137,7 @@ func TestDo(t *testing.T) {
 }
 
 func TestRandom(t *testing.T) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+	r := rand.New(rand.NewSource(1))
 	tests := []struct {
 		name  string
 		parts []string

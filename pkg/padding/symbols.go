@@ -29,7 +29,7 @@ func Symbols(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]strin
 		return adaptive(parts, char, cfg.PadToLength), nil
 	default:
 		return nil, fmt.Errorf(
-			"%q is not a valid transformation", cfg.PaddingType,
+			"%q is not a valid padding style", cfg.PaddingType,
 		)
 	}
 }
