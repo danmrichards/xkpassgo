@@ -117,6 +117,7 @@ If the given, or default, config file does not exist it will be ignored. The
 configuration will then use the default values outlined in the usage above.
 
 ## TODO
+- [ ] Random number generator dependency injection (i.e. crypto/rand for prod and math/rand with fixed seed for tests)
 - [ ] Subcommand to display config as JSON
 - [ ] Subcommand to save config from flags
 - [ ] Config presets from https://xkpasswd.net/s/
