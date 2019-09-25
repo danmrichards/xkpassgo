@@ -8,7 +8,7 @@ Word list based on the [10,000 most common][2] English words.
 ## Installation
 If you are a Golang developer you can install the latest release like so:
 ```bash
-$ go install github.com/danmrichards/xkpassgo/cmd/xkpassgo
+$ go get github.com/danmrichards/xkpassgo/cmd/xkpassgo
 ```
 Otherwise you can download a binary for your platform from the releases page.
 
