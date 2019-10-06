@@ -1,4 +1,4 @@
-# xkpassgo [![GoDoc](https://godoc.org/github.com/danmrichards/xkpassgo?status.svg)](https://godoc.org/github.com/danmrichards/xkpassgo) [![License](http://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/danmrichards/xkpassgo/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/danmrichards/xkpassgo)](https://goreportcard.com/report/github.com/danmrichards/xkpassgo)
+# xkpassgo [![GoDoc](https://godoc.org/github.com/danmrichards/xkpassgo?status.svg)](https://godoc.org/github.com/danmrichards/xkpassgo) [![License](http://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/danmrichards/xkpassgo/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/danmrichards/xkpassgo)](https://goreportcard.com/report/github.com/danmrichards/xkpassgo) ![](https://github.com/danmrichards/xkpassgo/workflows/test/badge.svg)
 A generator of [XKCD memorable passwords][1] implemented in Golang.
 
 > Inspired by https://xkpasswd.net/s/ and https://github.com/bbusschots/hsxkpasswd
