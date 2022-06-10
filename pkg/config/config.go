@@ -2,16 +2,11 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"os"
 
-	"github.com/mitchellh/go-homedir"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
+	"github.com/jessevdk/go-flags"
 )
 
 var (
-	cfgFile string
 
 	// DefaultAlphabet is the default character set used for the separator
 	// and padding modifications.
@@ -23,100 +18,30 @@ var (
 
 // GeneratorConfig represents the configuration for the password generator.
 type GeneratorConfig struct {
-	NumWords                int      `mapstructure:"num_words"`
-	WordLenMin              int      `mapstructure:"word_length_min"`
-	WordLenMax              int      `mapstructure:"word_length_max"`
-	CaseTransform           string   `mapstructure:"case_transform"`
-	SeparatorCharacter      string   `mapstructure:"separator_character"`
-	SeparatorAlphabet       []string `mapstructure:"separator_alphabet"`
-	PaddingDigitsBefore     int      `mapstructure:"padding_digits_before"`
-	PaddingDigitsAfter      int      `mapstructure:"padding_digits_after"`
-	PaddingType             string   `mapstructure:"padding_type"`
-	PaddingCharacter        string   `mapstructure:"padding_character"`
-	SymbolAlphabet          []string `mapstructure:"symbol_alphabet"`
-	PadToLength             int      `mapstructure:"pad_to_length"`
-	PaddingCharactersBefore int      `mapstructure:"padding_characters_before"`
-	PaddingCharactersAfter  int      `mapstructure:"padding_characters_after"`
+	NumWords                int      `long:"num_words" default:"3" description:"number of words"`
+	WordLenMin              int      `long:"word_length_min" default:"4" description:"minimum word length"`
+	WordLenMax              int      `long:"word_length_max" default:"8" description:"maximum word length"`
+	CaseTransform           string   `long:"case_transform" default:"ALTERNATE" choice:"LOWER" choice:"UPPER" choice:"RANDOM" choice:"NONE" choice:"ALTERNATE" choice:"CAPITALISE" choice:"INVERT" description:"case transformation"`
+	SeparatorCharacter      string   `long:"separator_character" default:"RANDOM" description:"character to separate password parts"`
+	SeparatorAlphabet       []string `long:"separator_alphabet" default:"!" default:"@" default:"$" default:"%" default:"^" default:"&" default:"*" default:"-" default:"_" default:"+" default:"=" default:":" default:"|" default:"~" default:"?" default:"/" default:"." default:";" description:"comma-separated list of characters to separate password parts"`
+	PaddingDigitsBefore     int      `long:"padding_digits_before" default:"2" description:"number of digits to pad before the password"`
+	PaddingDigitsAfter      int      `long:"padding_digits_after" default:"2" description:"number of digits to pad after the password"`
+	PaddingType             string   `long:"padding_type" default:"FIXED" choice:"FIXED" choice:"ADAPTIVE" description:"padding type"`
+	PaddingCharacter      	  string   `long:"padding_character" default:"RANDOM" description:"character to pad the password with"`
+	SymbolAlphabet          []string `long:"symbol_alphabet" default:"!" default:"@" default:"$" default:"%" default:"^" default:"&" default:"*" default:"-" default:"_" default:"+" default:"=" default:":" default:"|" default:"~" default:"?" default:"/" default:"." default:";" description:"comma-separated list of characters to pad the password with"`
+	PadToLength             int      `long:"pad_to_length" default:"8" description:"length to pad the password to, will be ignored if less than the generated password length"`
+	PaddingCharactersBefore int      `long:"padding_characters_before" default:"2" description:"number of characters to pad before the password"`
+	PaddingCharactersAfter  int      `long:"padding_characters_after" default:"2" description:"number of characters to pad before the password"`
 }
 
-func init() {
-	pflag.StringVar(&cfgFile, "config", mustDefaultConfigFile(), "path to config file")
-
-	// Define flags with names matching the mapstructure tags on the config
-	// struct. This allows Viper to override config file values with those
-	// from the flags.
-	pflag.Int("num_words", 3, "number of words")
-	pflag.Int("word_length_min", 4, "minimum word length")
-	pflag.Int("word_length_max", 8, "maximum word length")
-	pflag.String(
-		"case_transform", "ALTERNATE",
-		"case transformation, allowed values: LOWER, UPPER, RANDOM, NONE, ALTERNATE, CAPITALISE, INVERT",
-	)
-	pflag.String("separator_character", "RANDOM", "character to separate password parts")
-	pflag.StringSlice(
-		"separator_alphabet",
-		DefaultAlphabet,
-		"comma-separated list of characters to separate password parts",
-	)
-	pflag.Int("padding_digits_before", 2, "number of digits to pad before the password")
-	pflag.Int("padding_digits_after", 2, "number of digits to pad before the password")
-	pflag.String(
-		"padding_type", "FIXED", "padding type, allowed values: FIXED, ADAPTIVE",
-	)
-	pflag.String("padding_character", "RANDOM", "character to pad the password with")
-	pflag.StringSlice(
-		"symbol_alphabet",
-		DefaultAlphabet,
-		"comma-separated list of characters to pad the password with",
-	)
-	pflag.Int("pad_to_length", 8, "length to pad the password to, will be ignored if less than the generated password length")
-	pflag.Int("padding_characters_before", 2, "number of characters to pad before the password")
-	pflag.Int("padding_characters_after", 2, "number of characters to pad before the password")
-	pflag.Parse()
-
-	viper.BindPFlags(pflag.CommandLine)
-}
-
-// mustDefaultConfigFile returns the path to the default config file.
-//
-// The default config file is expected to exist in the users home directory.
-//
-// If an error is encountered finding the home directory, the method will panic.
-func mustDefaultConfigFile() string {
-	home, err := homedir.Dir()
-	if err != nil {
-		panic(err)
+func Load() (gc *GeneratorConfig, err error) {
+	// Parse args
+	var gcReal GeneratorConfig
+	var parser *flags.Parser = flags.NewParser(&gcReal, flags.Default)
+	if _, err = parser.Parse(); err == nil {
+		gc = &gcReal
 	}
-	return home + "/.xkpassgo.json"
-}
-
-// Load returns a fully loaded configuration for the password generator.
-//
-// The config will be taken from the defined config file (default or from flag)
-// and can be overridden with flag values.
-func Load() (*GeneratorConfig, error) {
-	viper.SetConfigType("json")
-
-	// Only load config from file if it exists.
-	switch _, err := os.Stat(cfgFile); {
-	case err == nil:
-		viper.SetConfigFile(cfgFile)
-
-		if err := viper.ReadInConfig(); err != nil {
-			return nil, fmt.Errorf("read config: %w", err)
-		}
-	case os.IsNotExist(err):
-		// Config file does not exist. Do nothing.
-	default:
-		return nil, fmt.Errorf("config file exists: %w", err)
-	}
-
-	var cfg GeneratorConfig
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("read config: %w", err)
-	}
-
-	return &cfg, nil
+	return
 }
 
 // Validate returns an error if the current configuration is not valid.
