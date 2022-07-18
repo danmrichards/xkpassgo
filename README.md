@@ -34,6 +34,7 @@ Usage of xkpassgo:
       --padding_type string             padding type, allowed values: FIXED, ADAPTIVE (default "FIXED")
       --separator_alphabet strings      comma-separated list of characters to separate password parts (default [!,@,$,%,^,&,*,-,_,+,=,:,|,~,?,/,.,;])
       --separator_character string      character to separate password parts (default "RANDOM")
+      --separator_characters int        number of characters to separated password parts with (default 1)
       --word_length_max int             maximum word length (default 8)
       --word_length_min int             minimum word length (default 4)
 ```

@@ -27,6 +27,7 @@ type GeneratorConfig struct {
 	WordLenMin              int      `mapstructure:"word_length_min"`
 	WordLenMax              int      `mapstructure:"word_length_max"`
 	CaseTransform           string   `mapstructure:"case_transform"`
+	SeparatorCharacters     int      `mapstructure:"separator_characters"`
 	SeparatorCharacter      string   `mapstructure:"separator_character"`
 	SeparatorAlphabet       []string `mapstructure:"separator_alphabet"`
 	PaddingDigitsBefore     int      `mapstructure:"padding_digits_before"`
@@ -52,6 +53,7 @@ func init() {
 		"case_transform", "ALTERNATE",
 		"case transformation, allowed values: LOWER, UPPER, RANDOM, NONE, ALTERNATE, CAPITALISE, INVERT",
 	)
+	pflag.Int("separator_characters", 1, "number of characters to separated password parts with")
 	pflag.String("separator_character", "RANDOM", "character to separate password parts")
 	pflag.StringSlice(
 		"separator_alphabet",
