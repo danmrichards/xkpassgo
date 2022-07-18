@@ -20,13 +20,25 @@ func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, er
 	char := cfg.SeparatorCharacter
 	alpha := cfg.SeparatorAlphabet
 
+	if cfg.SeparatorCharacters == 0 {
+		cfg.SeparatorCharacters = 1
+	}
+
+	c := ""
 	if char == Random {
 		if len(alpha) == 0 {
 			return nil, errors.New("configured alphabet cannot be empty")
 		}
+		for i := 0; i < cfg.SeparatorCharacters; i++ {
+			c += alpha[r.Intn(len(alpha))]
+		}
 
-		char = alpha[r.Intn(len(alpha))]
+	} else {
+		for i := 0; i < cfg.SeparatorCharacters; i++ {
+			c += char
+		}
 	}
+	char = c
 
 	sp := make([]string, 0, len(parts)+len(parts)-1)
 
