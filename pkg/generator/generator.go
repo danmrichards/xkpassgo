@@ -2,7 +2,7 @@ package generator
 
 import (
 	"bytes"
-	"fmt"
+	_ "embed"
 	"math/rand"
 	"strings"
 	"time"
@@ -11,8 +11,10 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/padding"
 	"github.com/danmrichards/xkpassgo/pkg/separator"
 	"github.com/danmrichards/xkpassgo/pkg/transform"
-	"github.com/gobuffalo/packr/v2"
 )
+
+//go:embed words
+var words []byte
 
 // XKPassword is a generator of XKCD-style memorable passwords.
 type XKPassword struct {
@@ -62,14 +64,8 @@ func (xk *XKPassword) Generate() (pw string, err error) {
 //
 // The word list is loaded from a packed asset file.
 func (xk *XKPassword) loadWordList() error {
-	box := packr.New("assets", "../../assets")
-	wf, err := box.Find("words")
-	if err != nil {
-		return fmt.Errorf("load words list: %w", err)
-	}
-
 	// Split into lines so we can shuffle and select suitable words.
-	xk.words = bytes.Split(wf, []byte("\n"))
+	xk.words = bytes.Split(words, []byte("\n"))
 	return nil
 }
 
