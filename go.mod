@@ -11,5 +11,5 @@ require (
 	github.com/spf13/viper v1.4.0
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
-	golang.org/x/sys v0.0.0-20190920190810-ef0ce1748380 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
