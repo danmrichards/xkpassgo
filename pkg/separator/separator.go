@@ -11,6 +11,9 @@ import (
 // be used.
 const Random = "RANDOM"
 
+// ErrEmptyAlphabet is returned when the configured alphabet is empty.
+var ErrEmptyAlphabet = errors.New("configured alphabet cannot be empty")
+
 // Do returns parts with the given separator character inserted in between the
 // elements.
 //
@@ -22,7 +25,7 @@ func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, er
 
 	if char == Random {
 		if len(alpha) == 0 {
-			return nil, errors.New("configured alphabet cannot be empty")
+			return nil, ErrEmptyAlphabet
 		}
 
 		char = alpha[r.Intn(len(alpha))]

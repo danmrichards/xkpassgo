@@ -10,8 +10,11 @@ import (
 
 var testParts = []string{"correct", "horse", "battery", "staple"}
 
+var testSeparatorRand = rand.New(rand.NewSource(1))
+
 func TestDo(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		parts     []string
@@ -109,15 +112,19 @@ func TestDo(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			// Cannot call t.Parallel() here because subtests share the same
+			// rand.Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			sp, err := Do(tc.parts, tc.cfg, r)
+			sp, err := Do(tc.parts, tc.cfg, testSeparatorRand)
 			if err != nil {
 				t.Fatalf("Do error = %v", err)
 			}
+
 			if !reflect.DeepEqual(sp, tc.wantParts) {
 				t.Errorf("Do parts = %v, wantParts %v", sp, tc.wantParts)
 			}

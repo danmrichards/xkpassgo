@@ -37,6 +37,13 @@ linters:
       - third_party$
       - builtin$
       - examples$
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - goconst
+          - paralleltest
+          - tparallel
 formatters:
   enable:
     - gci

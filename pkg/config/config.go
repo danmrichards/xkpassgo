@@ -18,6 +18,17 @@ var (
 		"!", "@", "$", "%", "^", "&", "*", "-", "_",
 		"+", "=", ":", "|", "~", "?", "/", ".", ";",
 	}
+
+	// ErrNumWordsNegative is returned when num_words is negative.
+	ErrNumWordsNegative       = errors.New("num_words must be a positive integer")
+	ErrWordLenMinNegative     = errors.New("word_len_min must be a positive integer")
+	ErrWordLenMaxNegative     = errors.New("word_len_max must be a positive integer")
+	ErrWordLenMaxLessThanMin  = errors.New("word_len_max cannot be less than word_len_min")
+	ErrPaddingDigitsBeforeNeg = errors.New("padding_digits_before must be a positive integer")
+	ErrPaddingDigitsAfterNeg  = errors.New("padding_digits_after must be a positive integer")
+	ErrPadToLengthNegative    = errors.New("pad_to_length must be a positive integer")
+	ErrPaddingCharsBeforeNeg  = errors.New("padding_characters_before must be a positive integer")
+	ErrPaddingCharsAfterNeg   = errors.New("padding_characters_after must be a positive integer")
 )
 
 // GeneratorConfig represents the configuration for the password generator.
@@ -86,6 +97,7 @@ func mustDefaultConfigFile() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return home + "/.xkpassgo.json"
 }
 
@@ -97,22 +109,26 @@ func Load() (*GeneratorConfig, error) {
 	viper.SetConfigType("json")
 
 	// Only load config from file if it exists.
-	switch _, err := os.Stat(cfgFile); {
-	case err == nil:
+	_, statErr := os.Stat(cfgFile)
+	switch {
+	case statErr == nil:
 		viper.SetConfigFile(cfgFile)
 
-		if err := viper.ReadInConfig(); err != nil {
-			return nil, fmt.Errorf("read config: %w", err)
+		readErr := viper.ReadInConfig()
+		if readErr != nil {
+			return nil, fmt.Errorf("read config: %w", readErr)
 		}
-	case os.IsNotExist(err):
+	case os.IsNotExist(statErr):
 		// Config file does not exist. Do nothing.
 	default:
-		return nil, fmt.Errorf("config file exists: %w", err)
+		return nil, fmt.Errorf("config file exists: %w", statErr)
 	}
 
 	var cfg GeneratorConfig
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("read config: %w", err)
+
+	unmarshalErr := viper.Unmarshal(&cfg)
+	if unmarshalErr != nil {
+		return nil, fmt.Errorf("read config: %w", unmarshalErr)
 	}
 
 	return &cfg, nil
@@ -121,35 +137,39 @@ func Load() (*GeneratorConfig, error) {
 // Validate returns an error if the current configuration is not valid.
 func (gc *GeneratorConfig) Validate() error {
 	if gc.NumWords < 0 {
-		return errors.New("num_words must be a positive integer")
+		return ErrNumWordsNegative
 	}
 
 	if gc.WordLenMin < 0 {
-		return errors.New("word_len_min must be a positive integer")
+		return ErrWordLenMinNegative
 	}
+
 	if gc.WordLenMax < 0 {
-		return errors.New("word_len_max must be a positive integer")
+		return ErrWordLenMaxNegative
 	}
+
 	if gc.WordLenMax < gc.WordLenMin {
-		return errors.New("word_len_max cannot be less than word_len_min")
+		return ErrWordLenMaxLessThanMin
 	}
 
 	if gc.PaddingDigitsBefore < 0 {
-		return errors.New("padding_digits_before must be a positive integer")
+		return ErrPaddingDigitsBeforeNeg
 	}
+
 	if gc.PaddingDigitsAfter < 0 {
-		return errors.New("padding_digits_after must be a positive integer")
+		return ErrPaddingDigitsAfterNeg
 	}
 
 	if gc.PadToLength < 0 {
-		return errors.New("pad_to_length must be a positive integer")
+		return ErrPadToLengthNegative
 	}
 
 	if gc.PaddingCharactersBefore < 0 {
-		return errors.New("padding_characters_before must be a positive integer")
+		return ErrPaddingCharsBeforeNeg
 	}
+
 	if gc.PaddingCharactersAfter < 0 {
-		return errors.New("padding_characters_after must be a positive integer")
+		return ErrPaddingCharsAfterNeg
 	}
 
 	return nil

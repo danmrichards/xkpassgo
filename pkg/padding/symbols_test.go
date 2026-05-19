@@ -9,8 +9,11 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
+var testSymbolsRand = rand.New(rand.NewSource(1))
+
 func TestSymbols(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+	t.Parallel()
+
 	tests := []struct {
 		name    string
 		parts   []string
@@ -185,15 +188,19 @@ func TestSymbols(t *testing.T) {
 			wantPw: "correcthorsebatterystaple!!!!!!!!!!!!!!!",
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			// Cannot call t.Parallel() here because subtests share the same
+			// rand.Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			p, err := symbols(strings.Join(parts, ""), tc.cfg, r)
+			p, err := symbols(strings.Join(parts, ""), tc.cfg, testSymbolsRand)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("Do error = %v, wantErr %v", err, tc.wantErr)
 			}
+
 			if p != tc.wantPw {
 				t.Errorf("Do parts = %q, wantPw %q", p, tc.wantPw)
 			}

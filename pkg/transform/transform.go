@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -8,6 +9,9 @@ import (
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
+
+// ErrInvalidTransform is returned when an invalid case transformation is specified.
+var ErrInvalidTransform = errors.New("invalid case transformation")
 
 // transformFunc is a func that transforms the elements of parts and returns
 // the transformed elements in a slice.
@@ -17,7 +21,7 @@ type transformFunc func(parts []string, r *rand.Rand) []string
 func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
 	tf, ok := styleFuncs[style(cfg.CaseTransform)]
 	if !ok {
-		return nil, fmt.Errorf("%q is not a valid transformation", string(cfg.CaseTransform))
+		return nil, fmt.Errorf("%q: %w", cfg.CaseTransform, ErrInvalidTransform)
 	}
 
 	return tf(parts, r), nil
@@ -47,6 +51,7 @@ func capitalise(parts []string, _ *rand.Rand) []string {
 		if p == "" {
 			continue
 		}
+
 		r := []rune(p)
 		r[0] = unicode.ToTitle(r[0])
 		parts[i] = string(r)
@@ -66,8 +71,9 @@ func invert(parts []string, _ *rand.Rand) []string {
 				continue
 			}
 
-			pw[j] = byte(unicode.ToTitle(rune(w)))
+			pw[j] = byte(unicode.ToTitle(rune(w))) //nolint:gosec // G115: ASCII characters fit in byte
 		}
+
 		parts[i] = string(pw)
 	}
 

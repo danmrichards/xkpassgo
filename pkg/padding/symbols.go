@@ -1,6 +1,7 @@
 package padding
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -13,10 +14,14 @@ import (
 // be used.
 const Random = "RANDOM"
 
+// ErrInvalidPaddingStyle is returned when an invalid padding style is specified.
+var ErrInvalidPaddingStyle = errors.New("invalid padding style")
+
 // symbols returns pw with the configured padding applied.
 func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, error) {
 	char := cfg.PaddingCharacter
 	alpha := cfg.SymbolAlphabet
+
 	if char == Random {
 		char = alpha[r.Intn(len(alpha))]
 	}
@@ -31,9 +36,7 @@ func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, erro
 	case Adaptive:
 		return adaptive(pw, char, cfg.PadToLength), nil
 	default:
-		return "", fmt.Errorf(
-			"%q is not a valid padding style", cfg.PaddingType,
-		)
+		return "", fmt.Errorf("%q: %w", cfg.PaddingType, ErrInvalidPaddingStyle)
 	}
 }
 

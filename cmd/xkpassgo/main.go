@@ -14,7 +14,8 @@ func main() {
 		exitErr(err)
 	}
 
-	if err = cfg.Validate(); err != nil {
+	err = cfg.Validate()
+	if err != nil {
 		exitErr(err)
 	}
 
@@ -25,10 +26,10 @@ func main() {
 		exitErr(err)
 	}
 
-	fmt.Println(pw)
+	fmt.Fprintln(os.Stdout, pw)
 }
 
 func exitErr(err error) {
-	fmt.Println(err)
+	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }

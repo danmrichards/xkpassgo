@@ -15,8 +15,11 @@ var (
 	testExtremeParts = []string{"cOrReCt", "hOrSe", "bAtTeRy", "sTaPle"}
 )
 
+var testTransformRand = rand.New(rand.NewSource(time.Now().Unix()))
+
 func TestDo(t *testing.T) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		parts     []string
@@ -120,15 +123,19 @@ func TestDo(t *testing.T) {
 			wantParts: []string{"CORRECT", "HORSE", "BATTERY", "STAPLE"},
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			p, err := Do(parts, tc.cfg, r)
+			p, err := Do(parts, tc.cfg, testTransformRand)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("Do error = %v, wantErr %v", err, tc.wantErr)
 			}
+
 			if !reflect.DeepEqual(p, tc.wantParts) {
 				t.Errorf("Do parts = %v, wantParts %v", p, tc.wantParts)
 			}
@@ -137,7 +144,10 @@ func TestDo(t *testing.T) {
 }
 
 func TestRandom(t *testing.T) {
+	t.Parallel()
+
 	r := rand.New(rand.NewSource(1))
+
 	tests := []struct {
 		name  string
 		parts []string
@@ -151,8 +161,11 @@ func TestRandom(t *testing.T) {
 			parts: testExtremeParts,
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			// Cannot call t.Parallel() here because subtests share the same
+			// rand.Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
@@ -162,10 +175,12 @@ func TestRandom(t *testing.T) {
 			}
 
 			var hasLower, hasUpper bool
+
 			for _, p := range rp {
 				if strings.ToLower(p) == p {
 					hasLower = true
 				}
+
 				if strings.ToUpper(p) == p {
 					hasUpper = true
 				}
@@ -174,6 +189,7 @@ func TestRandom(t *testing.T) {
 			if !hasLower {
 				t.Errorf("Do random = %v: no lower case words", rp)
 			}
+
 			if !hasUpper {
 				t.Errorf("Do random = %v: no upper case words", rp)
 			}

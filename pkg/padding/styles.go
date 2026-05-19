@@ -1,6 +1,6 @@
 package padding
 
-// Style represents a style of symbol padding
+// Style represents a style of symbol padding.
 type Style string
 
 const (
@@ -18,8 +18,8 @@ const (
 )
 
 var styleFuncs = map[Style]struct{}{
-	Fixed:    struct{}{},
-	Adaptive: struct{}{},
+	Fixed:    {},
+	Adaptive: {},
 }
 
 // Styles returns a list of available padding styles.

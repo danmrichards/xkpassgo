@@ -7,8 +7,11 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
+var testRand = rand.New(rand.NewSource(1))
+
 func TestXKPassword_Generate(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		cfg    *config.GeneratorConfig
@@ -170,10 +173,13 @@ func TestXKPassword_Generate(t *testing.T) {
 			wantPw: "PLANNED-approved-ANNA-prague",
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			// Cannot call t.Parallel() here because subtests share the same
+			// rand.Rand instance which is not thread-safe.
 			xkp := &XKPassword{
-				r:   r,
+				r:   testRand,
 				cfg: tc.cfg,
 			}
 
@@ -181,6 +187,7 @@ func TestXKPassword_Generate(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Generate error = %v", err)
 			}
+
 			if pw != tc.wantPw {
 				t.Fatalf("Generate pw = %q, wantPw %q", pw, tc.wantPw)
 			}
