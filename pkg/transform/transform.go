@@ -43,8 +43,13 @@ func alternate(parts []string, _ *rand.Rand) []string {
 
 // capitalise returns "Capitalise First Letter" parts.
 func capitalise(parts []string, _ *rand.Rand) []string {
-	for i := range parts {
-		parts[i] = strings.Title(parts[i])
+	for i, p := range parts {
+		if p == "" {
+			continue
+		}
+		r := []rune(p)
+		r[0] = unicode.ToTitle(r[0])
+		parts[i] = string(r)
 	}
 
 	return parts

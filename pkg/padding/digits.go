@@ -14,13 +14,13 @@ func digits(pw string, cfg *config.GeneratorConfig, r *rand.Rand) string {
 	before, after := cfg.PaddingDigitsBefore, cfg.PaddingDigitsAfter
 
 	var ppw strings.Builder
-	for i := 0; i < before; i++ {
+	for range before {
 		ppw.WriteString(strconv.Itoa(r.Intn(10)))
 	}
 
 	ppw.WriteString(pw)
 
-	for j := 0; j < after; j++ {
+	for range after {
 		ppw.WriteString(strconv.Itoa(r.Intn(10)))
 	}
 

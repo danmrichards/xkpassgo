@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -83,7 +82,7 @@ func init() {
 //
 // If an error is encountered finding the home directory, the method will panic.
 func mustDefaultConfigFile() string {
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}

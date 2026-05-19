@@ -40,13 +40,13 @@ func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, erro
 func fixed(pw string, char string, before, after int) string {
 	var ppw strings.Builder
 
-	for i := 0; i < before; i++ {
+	for range before {
 		ppw.WriteString(char)
 	}
 
 	ppw.WriteString(pw)
 
-	for j := 0; j < after; j++ {
+	for range after {
 		ppw.WriteString(char)
 	}
 
@@ -67,7 +67,7 @@ func adaptive(pw string, char string, padLen int) string {
 	var ppw strings.Builder
 	ppw.WriteString(pw)
 
-	for i := 0; i < diff; i++ {
+	for range diff {
 		ppw.WriteString(char)
 	}
 
