@@ -1,33 +1,51 @@
-run:
-  deadline: 5m
-
-linters-settings:
-  gocyclo:
-    min-complexity: 20
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 4
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
     - depguard
     - dupl
     - errcheck
-    - gosimple
-    - staticcheck
-    - lll
-    - prealloc
+    - exhaustruct
+    - funlen
     - gochecknoglobals
     - gochecknoinits
-    - funlen
+    - lll
+    - mnd
+    - nlreturn
+    - prealloc
+    - staticcheck
     - tagliatelle
+    - testpackage
     - varnamelen
     - wsl
-    - nlreturn
-    - mnd
-    - testpackage
-    - exhaustruct
-    - tenv
+  settings:
+    dupl:
+      threshold: 100
+    goconst:
+      min-len: 2
+      min-occurrences: 4
+    gocyclo:
+      min-complexity: 20
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
