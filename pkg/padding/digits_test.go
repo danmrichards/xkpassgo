@@ -63,6 +63,7 @@ func TestDigits(t *testing.T) {
 			if err != nil {
 				t.Fatalf("digits error = %v", err)
 			}
+
 			if sp != tc.wantPW {
 				t.Errorf("Do parts = %q, wantPW %q", sp, tc.wantPW)
 			}

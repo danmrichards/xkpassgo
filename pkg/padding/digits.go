@@ -14,6 +14,7 @@ func digits(pw string, cfg *config.GeneratorConfig, r config.Intner) (string, er
 	before, after := cfg.PaddingDigitsBefore, cfg.PaddingDigitsAfter
 
 	var ppw strings.Builder
+
 	for range before {
 		ri, err := r.Intn(10)
 		if err != nil {

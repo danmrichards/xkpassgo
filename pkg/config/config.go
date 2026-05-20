@@ -130,26 +130,24 @@ func Load() (*GeneratorConfig, error) {
 	viper.SetConfigType("json")
 
 	// Only load config from file if it exists.
-	_, statErr := os.Stat(cfgFile)
+	_, err := os.Stat(cfgFile)
 	switch {
-	case statErr == nil:
+	case err == nil:
 		viper.SetConfigFile(cfgFile)
 
-		readErr := viper.ReadInConfig()
-		if readErr != nil {
-			return nil, fmt.Errorf("read config: %w", readErr)
+		if err := viper.ReadInConfig(); err != nil {
+			return nil, fmt.Errorf("read config: %w", err)
 		}
-	case os.IsNotExist(statErr):
+	case os.IsNotExist(err):
 		// Config file does not exist. Do nothing.
 	default:
-		return nil, fmt.Errorf("config file exists: %w", statErr)
+		return nil, fmt.Errorf("config file exists: %w", err)
 	}
 
 	var cfg GeneratorConfig
 
-	unmarshalErr := viper.Unmarshal(&cfg)
-	if unmarshalErr != nil {
-		return nil, fmt.Errorf("read config: %w", unmarshalErr)
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("read config: %w", err)
 	}
 
 	return &cfg, nil

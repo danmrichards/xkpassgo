@@ -181,6 +181,7 @@ func TestRandom(t *testing.T) {
 			if err != nil {
 				t.Fatalf("random error = %v", err)
 			}
+
 			if reflect.DeepEqual(rp, testParts) {
 				t.Fatalf("Do random = %v: not transformed", rp)
 			}
