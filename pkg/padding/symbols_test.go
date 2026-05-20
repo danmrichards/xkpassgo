@@ -1,7 +1,7 @@
 package padding
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -9,7 +9,7 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-var testSymbolsRand = rand.New(rand.NewSource(1))
+var testSymbolsRand = testIntner{r: mathrand.New(mathrand.NewSource(1))}
 
 func TestSymbols(t *testing.T) {
 	t.Parallel()
@@ -192,7 +192,7 @@ func TestSymbols(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// Cannot call t.Parallel() here because subtests share the same
-			// rand.Rand instance which is not thread-safe.
+			// Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 

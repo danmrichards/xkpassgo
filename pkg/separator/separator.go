@@ -2,7 +2,7 @@ package separator
 
 import (
 	"errors"
-	"math/rand"
+	"fmt"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
@@ -19,7 +19,7 @@ var ErrEmptyAlphabet = errors.New("configured alphabet cannot be empty")
 //
 // The separatator character is either literally char or if set to "RANDOM" a
 // random character from the given alphabet.
-func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, error) {
+func Do(parts []string, cfg *config.GeneratorConfig, r config.Intner) ([]string, error) {
 	char := cfg.SeparatorCharacter
 	alpha := cfg.SeparatorAlphabet
 
@@ -28,7 +28,12 @@ func Do(parts []string, cfg *config.GeneratorConfig, r *rand.Rand) ([]string, er
 			return nil, ErrEmptyAlphabet
 		}
 
-		char = alpha[r.Intn(len(alpha))]
+		ri, err := r.Intn(len(alpha))
+		if err != nil {
+			return nil, fmt.Errorf("separator: %w", err)
+		}
+
+		char = alpha[ri]
 	}
 
 	sp := make([]string, 0, len(parts)+len(parts)-1)

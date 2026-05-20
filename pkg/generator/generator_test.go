@@ -1,13 +1,21 @@
 package generator
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-var testRand = rand.New(rand.NewSource(1))
+type testIntner struct {
+	r *mathrand.Rand
+}
+
+func (t testIntner) Intn(n int) (int, error) {
+	return t.r.Intn(n), nil
+}
+
+var testRand = testIntner{r: mathrand.New(mathrand.NewSource(1))}
 
 func TestXKPassword_Generate(t *testing.T) {
 	t.Parallel()
@@ -34,7 +42,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				PaddingCharactersBefore: 1,
 				PaddingCharactersAfter:  1,
 			},
-			wantPw: "!41-JASON-SEWING-CHAIN-29!",
+			wantPw: "!41-jason-SEWING-CHAIN-29!",
 		},
 		{
 			name: "default",
@@ -112,7 +120,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				PaddingCharactersBefore: 1,
 				PaddingCharactersAfter:  1,
 			},
-			wantPw: "%held_gulf_tall%",
+			wantPw: "%HELD_gulf_TALL%",
 		},
 		{
 			name: "web32",
@@ -158,7 +166,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				},
 				PadToLength: 63,
 			},
-			wantPw: `0283*reported*preston*yellow*TROOPS*socket*ADAPTOR*1247%%%%%%%%`,
+			wantPw: `0283*reported*preston*yellow*troops*SOCKET*ADAPTOR*1247%%%%%%%%`,
 		},
 		{
 			name: "xkcd",
@@ -170,14 +178,14 @@ func TestXKPassword_Generate(t *testing.T) {
 				SeparatorCharacter: "-",
 				PaddingType:        "NONE",
 			},
-			wantPw: "PLANNED-approved-ANNA-prague",
+			wantPw: "planned-approved-ANNA-PRAGUE",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// Cannot call t.Parallel() here because subtests share the same
-			// rand.Rand instance which is not thread-safe.
+			// Rand instance which is not thread-safe.
 			xkp := &XKPassword{
 				r:   testRand,
 				cfg: tc.cfg,

@@ -12,6 +12,7 @@ linters:
     - lll
     - mnd
     - nlreturn
+    - noinlineerr
     - prealloc
     - staticcheck
     - tagliatelle

@@ -1,7 +1,7 @@
 package padding
 
 import (
-	"math/rand"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,19 +10,29 @@ import (
 
 // digits returns pw with the given amount of random digits padded at the
 // start and end of the string.
-func digits(pw string, cfg *config.GeneratorConfig, r *rand.Rand) string {
+func digits(pw string, cfg *config.GeneratorConfig, r config.Intner) (string, error) {
 	before, after := cfg.PaddingDigitsBefore, cfg.PaddingDigitsAfter
 
 	var ppw strings.Builder
 	for range before {
-		ppw.WriteString(strconv.Itoa(r.Intn(10)))
+		ri, err := r.Intn(10)
+		if err != nil {
+			return "", fmt.Errorf("padding digits: %w", err)
+		}
+
+		ppw.WriteString(strconv.Itoa(ri))
 	}
 
 	ppw.WriteString(pw)
 
 	for range after {
-		ppw.WriteString(strconv.Itoa(r.Intn(10)))
+		ri, err := r.Intn(10)
+		if err != nil {
+			return "", fmt.Errorf("padding digits: %w", err)
+		}
+
+		ppw.WriteString(strconv.Itoa(ri))
 	}
 
-	return ppw.String()
+	return ppw.String(), nil
 }

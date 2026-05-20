@@ -25,7 +25,7 @@ golangci-lint run -n ./...
 go test -v -race ./...
 ```
 
-- Tests use deterministic `math/rand` with fixed seed and golden-file assertions.
+- Randomness uses `crypto/rand` in production; tests use `math/rand` with fixed seed and golden-file assertions via a `config.Intner` interface.
 - Linter config: `.golangci.yml`.
 
 ## Config
@@ -59,5 +59,5 @@ The generation pipeline in `pkg/generator` is:
 
 - No external services, databases, or concurrency — purely a stdlib CLI with
   a few vendored dependencies (via `go.mod`).
-- Randomness uses `math/rand` seeded with `time.Now().Unix()` — not
-  `crypto/rand` (this is a known TODO in the README).
+- Randomness uses `crypto/rand` in production via `config.Intner` interface,
+  seeded `math/rand` in tests.

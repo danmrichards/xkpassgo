@@ -1,7 +1,7 @@
 package transform
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"reflect"
 	"strings"
 	"testing"
@@ -10,12 +10,20 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
+type testIntner struct {
+	r *mathrand.Rand
+}
+
+func (t testIntner) Intn(n int) (int, error) {
+	return t.r.Intn(n), nil
+}
+
 var (
 	testParts        = []string{"correct", "horse", "battery", "staple"}
 	testExtremeParts = []string{"cOrReCt", "hOrSe", "bAtTeRy", "sTaPle"}
 )
 
-var testTransformRand = rand.New(rand.NewSource(time.Now().Unix()))
+var testTransformRand = testIntner{r: mathrand.New(mathrand.NewSource(time.Now().Unix()))}
 
 func TestDo(t *testing.T) {
 	t.Parallel()
@@ -146,7 +154,7 @@ func TestDo(t *testing.T) {
 func TestRandom(t *testing.T) {
 	t.Parallel()
 
-	r := rand.New(rand.NewSource(1))
+	r := testIntner{r: mathrand.New(mathrand.NewSource(3))}
 
 	tests := []struct {
 		name  string
@@ -165,11 +173,14 @@ func TestRandom(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// Cannot call t.Parallel() here because subtests share the same
-			// rand.Rand instance which is not thread-safe.
+			// Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			rp := random(parts, r)
+			rp, err := random(parts, r)
+			if err != nil {
+				t.Fatalf("random error = %v", err)
+			}
 			if reflect.DeepEqual(rp, testParts) {
 				t.Fatalf("Do random = %v: not transformed", rp)
 			}

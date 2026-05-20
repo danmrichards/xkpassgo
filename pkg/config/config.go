@@ -20,15 +20,36 @@ var (
 	}
 
 	// ErrNumWordsNegative is returned when num_words is negative.
-	ErrNumWordsNegative       = errors.New("num_words must be a positive integer")
-	ErrWordLenMinNegative     = errors.New("word_len_min must be a positive integer")
-	ErrWordLenMaxNegative     = errors.New("word_len_max must be a positive integer")
-	ErrWordLenMaxLessThanMin  = errors.New("word_len_max cannot be less than word_len_min")
+	ErrNumWordsNegative = errors.New("num_words must be a positive integer")
+
+	// ErrWordLenMinNegative is returned when word_len_min is negative.
+	ErrWordLenMinNegative = errors.New("word_len_min must be a positive integer")
+
+	// ErrWordLenMaxNegative is returned when word_len_max is negative.
+	ErrWordLenMaxNegative = errors.New("word_len_max must be a positive integer")
+
+	// ErrWordLenMaxLessThanMin is returned when word_len_max is less than
+	// word_len_min.
+	ErrWordLenMaxLessThanMin = errors.New("word_len_max cannot be less than word_len_min")
+
+	// ErrPaddingDigitsBeforeNeg is returned when padding_digits_before is
+	// negative.
 	ErrPaddingDigitsBeforeNeg = errors.New("padding_digits_before must be a positive integer")
-	ErrPaddingDigitsAfterNeg  = errors.New("padding_digits_after must be a positive integer")
-	ErrPadToLengthNegative    = errors.New("pad_to_length must be a positive integer")
-	ErrPaddingCharsBeforeNeg  = errors.New("padding_characters_before must be a positive integer")
-	ErrPaddingCharsAfterNeg   = errors.New("padding_characters_after must be a positive integer")
+
+	// ErrPaddingDigitsAfterNeg is returned when padding_digits_after is
+	// negative.
+	ErrPaddingDigitsAfterNeg = errors.New("padding_digits_after must be a positive integer")
+
+	// ErrPadToLengthNegative is returned when pad_to_length is negative.
+	ErrPadToLengthNegative = errors.New("pad_to_length must be a positive integer")
+
+	// ErrPaddingCharsBeforeNeg is returned when padding_characters_before is
+	// negative.
+	ErrPaddingCharsBeforeNeg = errors.New("padding_characters_before must be a positive integer")
+
+	// ErrPaddingCharsAfterNeg is returned when padding_characters_after is
+	// negative.
+	ErrPaddingCharsAfterNeg = errors.New("padding_characters_after must be a positive integer")
 )
 
 // GeneratorConfig represents the configuration for the password generator.

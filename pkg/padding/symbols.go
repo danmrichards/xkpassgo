@@ -3,7 +3,6 @@ package padding
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"strings"
 	"unicode/utf8"
 
@@ -18,12 +17,17 @@ const Random = "RANDOM"
 var ErrInvalidPaddingStyle = errors.New("invalid padding style")
 
 // symbols returns pw with the configured padding applied.
-func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, error) {
+func symbols(pw string, cfg *config.GeneratorConfig, r config.Intner) (string, error) {
 	char := cfg.PaddingCharacter
 	alpha := cfg.SymbolAlphabet
 
 	if char == Random {
-		char = alpha[r.Intn(len(alpha))]
+		ri, err := r.Intn(len(alpha))
+		if err != nil {
+			return "", fmt.Errorf("padding symbol: %w", err)
+		}
+
+		char = alpha[ri]
 	}
 
 	switch Style(cfg.PaddingType) {
