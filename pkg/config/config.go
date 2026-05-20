@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -19,6 +18,38 @@ var (
 		"!", "@", "$", "%", "^", "&", "*", "-", "_",
 		"+", "=", ":", "|", "~", "?", "/", ".", ";",
 	}
+
+	// ErrNumWordsNegative is returned when num_words is negative.
+	ErrNumWordsNegative = errors.New("num_words must be a positive integer")
+
+	// ErrWordLenMinNegative is returned when word_len_min is negative.
+	ErrWordLenMinNegative = errors.New("word_len_min must be a positive integer")
+
+	// ErrWordLenMaxNegative is returned when word_len_max is negative.
+	ErrWordLenMaxNegative = errors.New("word_len_max must be a positive integer")
+
+	// ErrWordLenMaxLessThanMin is returned when word_len_max is less than
+	// word_len_min.
+	ErrWordLenMaxLessThanMin = errors.New("word_len_max cannot be less than word_len_min")
+
+	// ErrPaddingDigitsBeforeNeg is returned when padding_digits_before is
+	// negative.
+	ErrPaddingDigitsBeforeNeg = errors.New("padding_digits_before must be a positive integer")
+
+	// ErrPaddingDigitsAfterNeg is returned when padding_digits_after is
+	// negative.
+	ErrPaddingDigitsAfterNeg = errors.New("padding_digits_after must be a positive integer")
+
+	// ErrPadToLengthNegative is returned when pad_to_length is negative.
+	ErrPadToLengthNegative = errors.New("pad_to_length must be a positive integer")
+
+	// ErrPaddingCharsBeforeNeg is returned when padding_characters_before is
+	// negative.
+	ErrPaddingCharsBeforeNeg = errors.New("padding_characters_before must be a positive integer")
+
+	// ErrPaddingCharsAfterNeg is returned when padding_characters_after is
+	// negative.
+	ErrPaddingCharsAfterNeg = errors.New("padding_characters_after must be a positive integer")
 )
 
 // GeneratorConfig represents the configuration for the password generator.
@@ -83,10 +114,11 @@ func init() {
 //
 // If an error is encountered finding the home directory, the method will panic.
 func mustDefaultConfigFile() string {
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
+
 	return home + "/.xkpassgo.json"
 }
 
@@ -98,7 +130,8 @@ func Load() (*GeneratorConfig, error) {
 	viper.SetConfigType("json")
 
 	// Only load config from file if it exists.
-	switch _, err := os.Stat(cfgFile); {
+	_, err := os.Stat(cfgFile)
+	switch {
 	case err == nil:
 		viper.SetConfigFile(cfgFile)
 
@@ -112,6 +145,7 @@ func Load() (*GeneratorConfig, error) {
 	}
 
 	var cfg GeneratorConfig
+
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
@@ -122,35 +156,39 @@ func Load() (*GeneratorConfig, error) {
 // Validate returns an error if the current configuration is not valid.
 func (gc *GeneratorConfig) Validate() error {
 	if gc.NumWords < 0 {
-		return errors.New("num_words must be a positive integer")
+		return ErrNumWordsNegative
 	}
 
 	if gc.WordLenMin < 0 {
-		return errors.New("word_len_min must be a positive integer")
+		return ErrWordLenMinNegative
 	}
+
 	if gc.WordLenMax < 0 {
-		return errors.New("word_len_max must be a positive integer")
+		return ErrWordLenMaxNegative
 	}
+
 	if gc.WordLenMax < gc.WordLenMin {
-		return errors.New("word_len_max cannot be less than word_len_min")
+		return ErrWordLenMaxLessThanMin
 	}
 
 	if gc.PaddingDigitsBefore < 0 {
-		return errors.New("padding_digits_before must be a positive integer")
+		return ErrPaddingDigitsBeforeNeg
 	}
+
 	if gc.PaddingDigitsAfter < 0 {
-		return errors.New("padding_digits_after must be a positive integer")
+		return ErrPaddingDigitsAfterNeg
 	}
 
 	if gc.PadToLength < 0 {
-		return errors.New("pad_to_length must be a positive integer")
+		return ErrPadToLengthNegative
 	}
 
 	if gc.PaddingCharactersBefore < 0 {
-		return errors.New("padding_characters_before must be a positive integer")
+		return ErrPaddingCharsBeforeNeg
 	}
+
 	if gc.PaddingCharactersAfter < 0 {
-		return errors.New("padding_characters_after must be a positive integer")
+		return ErrPaddingCharsAfterNeg
 	}
 
 	return nil

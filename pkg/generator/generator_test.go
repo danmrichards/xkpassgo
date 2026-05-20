@@ -1,14 +1,28 @@
 package generator
 
 import (
-	"math/rand"
+	mathrand "math/rand"
+	"sync"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-func TestXKPassword_Generate(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
+}
+
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
+}
+
+var testRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
+
+func TestXKPassword_Generate(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name   string
 		cfg    *config.GeneratorConfig
@@ -31,7 +45,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				PaddingCharactersBefore: 1,
 				PaddingCharactersAfter:  1,
 			},
-			wantPw: "!41-JASON-SEWING-CHAIN-29!",
+			wantPw: "!41-jason-SEWING-CHAIN-29!",
 		},
 		{
 			name: "default",
@@ -109,7 +123,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				PaddingCharactersBefore: 1,
 				PaddingCharactersAfter:  1,
 			},
-			wantPw: "%held_gulf_tall%",
+			wantPw: "%HELD_gulf_TALL%",
 		},
 		{
 			name: "web32",
@@ -155,7 +169,7 @@ func TestXKPassword_Generate(t *testing.T) {
 				},
 				PadToLength: 63,
 			},
-			wantPw: `0283*reported*preston*yellow*TROOPS*socket*ADAPTOR*1247%%%%%%%%`,
+			wantPw: `0283*reported*preston*yellow*troops*SOCKET*ADAPTOR*1247%%%%%%%%`,
 		},
 		{
 			name: "xkcd",
@@ -167,13 +181,14 @@ func TestXKPassword_Generate(t *testing.T) {
 				SeparatorCharacter: "-",
 				PaddingType:        "NONE",
 			},
-			wantPw: "PLANNED-approved-ANNA-prague",
+			wantPw: "planned-approved-ANNA-PRAGUE",
 		},
 	}
-	for _, tc := range tests {
+
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
 			xkp := &XKPassword{
-				r:   r,
+				r:   testRand,
 				cfg: tc.cfg,
 			}
 
@@ -181,6 +196,7 @@ func TestXKPassword_Generate(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Generate error = %v", err)
 			}
+
 			if pw != tc.wantPw {
 				t.Fatalf("Generate pw = %q, wantPw %q", pw, tc.wantPw)
 			}

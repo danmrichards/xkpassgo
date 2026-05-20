@@ -1,17 +1,31 @@
 package separator
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
+}
+
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
+}
+
 var testParts = []string{"correct", "horse", "battery", "staple"}
 
-func TestDo(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+var testSeparatorRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
+
+func TestDo(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name      string
 		parts     []string
@@ -109,15 +123,17 @@ func TestDo(t *testing.T) {
 			},
 		},
 	}
-	for _, tc := range tests {
+
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			sp, err := Do(tc.parts, tc.cfg, r)
+			sp, err := Do(tc.parts, tc.cfg, testSeparatorRand)
 			if err != nil {
 				t.Fatalf("Do error = %v", err)
 			}
+
 			if !reflect.DeepEqual(sp, tc.wantParts) {
 				t.Errorf("Do parts = %v, wantParts %v", sp, tc.wantParts)
 			}

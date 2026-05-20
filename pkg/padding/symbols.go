@@ -1,8 +1,8 @@
 package padding
 
 import (
+	"errors"
 	"fmt"
-	"math/rand"
 	"strings"
 	"unicode/utf8"
 
@@ -13,12 +13,21 @@ import (
 // be used.
 const Random = "RANDOM"
 
+// ErrInvalidPaddingStyle is returned when an invalid padding style is specified.
+var ErrInvalidPaddingStyle = errors.New("invalid padding style")
+
 // symbols returns pw with the configured padding applied.
-func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, error) {
+func symbols(pw string, cfg *config.GeneratorConfig, r config.Intner) (string, error) {
 	char := cfg.PaddingCharacter
 	alpha := cfg.SymbolAlphabet
+
 	if char == Random {
-		char = alpha[r.Intn(len(alpha))]
+		ri, err := r.Intn(len(alpha))
+		if err != nil {
+			return "", fmt.Errorf("padding symbol: %w", err)
+		}
+
+		char = alpha[ri]
 	}
 
 	switch Style(cfg.PaddingType) {
@@ -31,22 +40,20 @@ func symbols(pw string, cfg *config.GeneratorConfig, r *rand.Rand) (string, erro
 	case Adaptive:
 		return adaptive(pw, char, cfg.PadToLength), nil
 	default:
-		return "", fmt.Errorf(
-			"%q is not a valid padding style", cfg.PaddingType,
-		)
+		return "", fmt.Errorf("%q: %w", cfg.PaddingType, ErrInvalidPaddingStyle)
 	}
 }
 
 func fixed(pw string, char string, before, after int) string {
 	var ppw strings.Builder
 
-	for i := 0; i < before; i++ {
+	for range before {
 		ppw.WriteString(char)
 	}
 
 	ppw.WriteString(pw)
 
-	for j := 0; j < after; j++ {
+	for range after {
 		ppw.WriteString(char)
 	}
 
@@ -67,7 +74,7 @@ func adaptive(pw string, char string, padLen int) string {
 	var ppw strings.Builder
 	ppw.WriteString(pw)
 
-	for i := 0; i < diff; i++ {
+	for range diff {
 		ppw.WriteString(char)
 	}
 

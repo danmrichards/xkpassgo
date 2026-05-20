@@ -1,42 +1,57 @@
-run:
-  deadline: 5m
-  skip-files:
-    - "\\.xo\\.go$"
-  skip-dirs:
-    - apps/test[0-9]+$
-
-linters-settings:
-  govet:
-    check-shadowing: false
-  gocyclo:
-    min-complexity: 20
-  maligned:
-    suggest-new: true
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 4
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
+    - depguard
     - dupl
-    - gas
     - errcheck
-    - gofmt
-    - gosimple
-    - interfacer
-    - megacheck
-    - maligned
-    - structcheck
-    - staticcheck
-    - unconvert
-    - unparam
-    - varcheck
-    - lll
-    - prealloc
+    - exhaustruct
+    - funlen
     - gochecknoglobals
     - gochecknoinits
-    - scopelint
-    - funlen
+    - lll
+    - mnd
+    - nlreturn
+    - noinlineerr
+    - prealloc
+    - staticcheck
+    - tagliatelle
+    - testpackage
+    - varnamelen
+    - wsl
+  settings:
+    dupl:
+      threshold: 100
+    goconst:
+      min-len: 2
+      min-occurrences: 4
+    gocyclo:
+      min-complexity: 20
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - goconst
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

@@ -2,26 +2,26 @@ package config
 
 import "testing"
 
-var (
-	testCfg = GeneratorConfig{
-		NumWords:                3,
-		WordLenMin:              3,
-		WordLenMax:              8,
-		CaseTransform:           "ALTERNATE",
-		SeparatorCharacter:      "RANDOM",
-		SeparatorAlphabet:       DefaultAlphabet,
-		PaddingDigitsBefore:     2,
-		PaddingDigitsAfter:      2,
-		PaddingType:             "FIXED",
-		PaddingCharacter:        "RANDOM",
-		SymbolAlphabet:          DefaultAlphabet,
-		PadToLength:             8,
-		PaddingCharactersBefore: 2,
-		PaddingCharactersAfter:  2,
-	}
-)
+var testCfg = GeneratorConfig{
+	NumWords:                3,
+	WordLenMin:              3,
+	WordLenMax:              8,
+	CaseTransform:           "ALTERNATE",
+	SeparatorCharacter:      "RANDOM",
+	SeparatorAlphabet:       DefaultAlphabet,
+	PaddingDigitsBefore:     2,
+	PaddingDigitsAfter:      2,
+	PaddingType:             "FIXED",
+	PaddingCharacter:        "RANDOM",
+	SymbolAlphabet:          DefaultAlphabet,
+	PadToLength:             8,
+	PaddingCharactersBefore: 2,
+	PaddingCharactersAfter:  2,
+}
 
 func TestGeneratorConfig_Validate(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name    string
 		mod     func(*GeneratorConfig)
@@ -95,14 +95,18 @@ func TestGeneratorConfig_Validate(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tc := range tests {
-		cfg := testCfg
-		if tc.mod != nil {
-			tc.mod(&cfg)
-		}
 
+	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if err := cfg.Validate(); (err != nil) != tc.wantErr {
+			t.Parallel()
+
+			cfg := testCfg
+			if tc.mod != nil {
+				tc.mod(&cfg)
+			}
+
+			err := cfg.Validate()
+			if (err != nil) != tc.wantErr {
 				t.Errorf("GeneratorConfig.Validate() error = %v, wantErr %v", err, tc.wantErr)
 			}
 		})

@@ -1,7 +1,7 @@
 package padding
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -9,8 +9,9 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-func TestSymbols(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+var testSymbolsRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
+
+func TestSymbols(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name    string
 		parts   []string
@@ -185,15 +186,17 @@ func TestSymbols(t *testing.T) {
 			wantPw: "correcthorsebatterystaple!!!!!!!!!!!!!!!",
 		},
 	}
-	for _, tc := range tests {
+
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			p, err := symbols(strings.Join(parts, ""), tc.cfg, r)
+			p, err := symbols(strings.Join(parts, ""), tc.cfg, testSymbolsRand)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("Do error = %v, wantErr %v", err, tc.wantErr)
 			}
+
 			if p != tc.wantPw {
 				t.Errorf("Do parts = %q, wantPw %q", p, tc.wantPw)
 			}

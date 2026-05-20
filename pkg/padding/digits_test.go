@@ -1,15 +1,16 @@
 package padding
 
 import (
-	"math/rand"
+	mathrand "math/rand"
 	"strings"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-func TestDigits(t *testing.T) {
-	r := rand.New(rand.NewSource(1))
+var testDigitsRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
+
+func TestDigits(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name   string
 		parts  []string
@@ -48,12 +49,17 @@ func TestDigits(t *testing.T) {
 			wantPW: strings.Join(testParts, ""),
 		},
 	}
-	for _, tc := range tests {
+
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
-			sp := digits(strings.Join(tc.parts, ""), tc.cfg, r)
+			sp, err := digits(strings.Join(tc.parts, ""), tc.cfg, testDigitsRand)
+			if err != nil {
+				t.Fatalf("digits error = %v", err)
+			}
+
 			if sp != tc.wantPW {
 				t.Errorf("Do parts = %q, wantPW %q", sp, tc.wantPW)
 			}
