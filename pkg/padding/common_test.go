@@ -1,13 +1,20 @@
 package padding
 
-import mathrand "math/rand"
+import (
+	mathrand "math/rand"
+	"sync"
+)
 
-type testIntner struct {
-	r *mathrand.Rand
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
 }
 
-func (t testIntner) Intn(n int) (int, error) {
-	return t.r.Intn(n), nil
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
 }
 
 var (

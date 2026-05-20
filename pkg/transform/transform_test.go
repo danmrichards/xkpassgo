@@ -4,18 +4,23 @@ import (
 	mathrand "math/rand"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-type testIntner struct {
-	r *mathrand.Rand
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
 }
 
-func (t testIntner) Intn(n int) (int, error) {
-	return t.r.Intn(n), nil
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
 }
 
 var (
@@ -23,7 +28,7 @@ var (
 	testExtremeParts = []string{"cOrReCt", "hOrSe", "bAtTeRy", "sTaPle"}
 )
 
-var testTransformRand = testIntner{r: mathrand.New(mathrand.NewSource(time.Now().Unix()))}
+var testTransformRand = &syncIntner{r: mathrand.New(mathrand.NewSource(time.Now().Unix()))}
 
 func TestDo(t *testing.T) {
 	t.Parallel()
@@ -154,7 +159,7 @@ func TestDo(t *testing.T) {
 func TestRandom(t *testing.T) {
 	t.Parallel()
 
-	r := testIntner{r: mathrand.New(mathrand.NewSource(3))}
+	r := &syncIntner{r: mathrand.New(mathrand.NewSource(3))}
 
 	tests := []struct {
 		name  string
@@ -172,8 +177,8 @@ func TestRandom(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// Cannot call t.Parallel() here because subtests share the same
-			// Rand instance which is not thread-safe.
+			t.Parallel()
+
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 

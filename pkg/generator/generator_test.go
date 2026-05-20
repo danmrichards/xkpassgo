@@ -2,24 +2,27 @@ package generator
 
 import (
 	mathrand "math/rand"
+	"sync"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-type testIntner struct {
-	r *mathrand.Rand
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
 }
 
-func (t testIntner) Intn(n int) (int, error) {
-	return t.r.Intn(n), nil
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
 }
 
-var testRand = testIntner{r: mathrand.New(mathrand.NewSource(1))}
+var testRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
 
-func TestXKPassword_Generate(t *testing.T) {
-	t.Parallel()
-
+func TestXKPassword_Generate(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name   string
 		cfg    *config.GeneratorConfig
@@ -182,10 +185,8 @@ func TestXKPassword_Generate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
-			// Cannot call t.Parallel() here because subtests share the same
-			// Rand instance which is not thread-safe.
 			xkp := &XKPassword{
 				r:   testRand,
 				cfg: tc.cfg,

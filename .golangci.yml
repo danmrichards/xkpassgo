@@ -43,8 +43,6 @@ linters:
         linters:
           - gosec
           - goconst
-          - paralleltest
-          - tparallel
 formatters:
   enable:
     - gci

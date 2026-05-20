@@ -3,26 +3,29 @@ package separator
 import (
 	mathrand "math/rand"
 	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-type testIntner struct {
-	r *mathrand.Rand
+type syncIntner struct {
+	mu sync.Mutex
+	r  *mathrand.Rand
 }
 
-func (t testIntner) Intn(n int) (int, error) {
-	return t.r.Intn(n), nil
+func (s *syncIntner) Intn(n int) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.r.Intn(n), nil
 }
 
 var testParts = []string{"correct", "horse", "battery", "staple"}
 
-var testSeparatorRand = testIntner{r: mathrand.New(mathrand.NewSource(1))}
+var testSeparatorRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
 
-func TestDo(t *testing.T) {
-	t.Parallel()
-
+func TestDo(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name      string
 		parts     []string
@@ -121,10 +124,8 @@ func TestDo(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
-			// Cannot call t.Parallel() here because subtests share the same
-			// Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 

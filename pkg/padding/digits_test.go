@@ -8,11 +8,9 @@ import (
 	"github.com/danmrichards/xkpassgo/pkg/config"
 )
 
-var testDigitsRand = testIntner{r: mathrand.New(mathrand.NewSource(1))}
+var testDigitsRand = &syncIntner{r: mathrand.New(mathrand.NewSource(1))}
 
-func TestDigits(t *testing.T) {
-	t.Parallel()
-
+func TestDigits(t *testing.T) { //nolint:paralleltest
 	tests := []struct {
 		name   string
 		parts  []string
@@ -52,10 +50,8 @@ func TestDigits(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range tests { //nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
-			// Cannot call t.Parallel() here because subtests share the same
-			// Rand instance which is not thread-safe.
 			parts := make([]string, len(tc.parts))
 			copy(parts, tc.parts)
 
